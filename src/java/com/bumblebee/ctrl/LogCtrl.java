@@ -6,7 +6,6 @@
 package com.bumblebee.ctrl;
 
 import com.bumblebee.model.Customer;
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -30,13 +29,14 @@ public class LogCtrl extends LookUpData {
     
 
     public LogCtrl() {
+        customer = new Customer();
     }
 
    
-    @PostConstruct
-    public void init(){
-    customer = new Customer();
-}
+//    @PostConstruct
+//    public void init(){
+//    customer = new Customer();
+//}
 
     
     public Customer getCustomer() {
@@ -44,8 +44,8 @@ public class LogCtrl extends LookUpData {
     }
 
     
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setCustomer(Customer c) {
+        this.customer = c;
     }
 
     
@@ -97,13 +97,13 @@ public class LogCtrl extends LookUpData {
         HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
         try {
             request.login(customer.getEmail(), customer.getPassword());
-//            customer = lookUpDataBeanRemote().;
+            customer = lookUpDataBeanRemote().getCustomer(customer.getEmail());
             valid = true;
         } catch (ServletException e) {
             valid = false;
             return FAILURE;
         }
-        return "/index.xhtml";
+        return SUCCESS;
     }
 
     public String logout() {
