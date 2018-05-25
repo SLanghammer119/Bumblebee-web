@@ -6,6 +6,11 @@
 package com.bumblebee.ctrl;
 
 import com.bumblebee.model.Customer;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -118,6 +123,50 @@ public class LogCtrl extends LookUpData {
         }
         return "/login.xhtml";
     }
+    
+     public void hashPassword() {
+        String password = customer.getPassword();
+        StringBuilder result = null;
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            result = new StringBuilder();
+            for (byte byt : hash) {
+                result.append(Integer.toString((byt & 0xff) + 0x100, 16).substring(1));
+            }
+
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(LogCtrl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        customer.setPassword(result.toString());
+    }
+     
+     
+        public void finishRegister() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        try {
+            hashPassword();
+            lookUpDataBeanRemote().saveRegister(customer);
+            context.addMessage(null, new FacesMessage("Registrierung erfolgreich abgeschlossen"));
+        } catch (Exception e) {
+            context.addMessage(null, new FacesMessage("Registrierung fehlgeschlagen"));
+        }
+
+    }
+     
+     
+     
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 }
 
